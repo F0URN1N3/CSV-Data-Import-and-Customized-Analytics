@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasCompositePrimaryKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Category3digitMonthlySummary extends Model
 {
     use HasFactory;
+    use HasCompositePrimaryKey;
 
     protected $table = 'category_3digit_monthly_summaries';
     public $incrementing = false;

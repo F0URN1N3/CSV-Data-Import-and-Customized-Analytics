@@ -83,11 +83,15 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
         /**  @var int|null */  //告訴 IDE，這個變數可以是整數或 null
         $headerRowIndex = null;
 
+        //預設全店統計資料在第10行前結束(index從0開始)
+        $globalStatsRowIndex = 9;
+
+
         // 1. 尋找標頭列 (含有日期格式如 114/05 的那一列)
         foreach ($rows as $index => $row) {
-            if ($this->isHeaderRow($row)) {
+            if ($this->isHeaderRow($row)) {    //isHeaderRow('114/05'){return true;}
                 $headerRowIndex = $index;
-                $this->parseDateHeaders($row);
+                $this->parseDateHeaders($row); //parseDateHeaders('114/05'){return dateColumnMap[5]=['year'=>2025,'month'=>5];}
                 break;
             }
         }
@@ -98,11 +102,17 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
         }
 
         // 2. 處理全店統計資料 (標頭列上方的全店數據)
-        $this->processGlobalStats($rows, $headerRowIndex);
+        $this->processGlobalStats($rows, $globalStatsRowIndex);
 
         // 3. 處理主要資料 (從標頭列下一列開始)
         for ($i = $headerRowIndex + 1; $i < $rows->count(); $i++) {
-            $row = $rows[$i];
+
+            $rowCollection = $rows->get($i);
+            // 【關鍵修正 1】安全檢查：若為空行或不存在，直接跳過
+            if (!$rowCollection || $rowCollection->isEmpty()) {
+                continue;
+            }
+            $row = $rowCollection->toArray();
 
             // 讀取 Column B (Index 1) 為代號
             $codeInRow = trim($row[1] ?? '');
@@ -205,6 +215,7 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
 
     private function saveTo3DigitTable($code, $dbField, $row)
     {
+        //ex: dateColumnMap[5]=['year'=>2025,'month'=>5];
         foreach ($this->dateColumnMap as $colIndex => $dateData) {
             $value = $this->parseNumber($row[$colIndex] ?? 0);
             Category3digitMonthlySummary::updateOrCreate(
@@ -235,23 +246,30 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
 
     // === 全店統計與輔助函數 ===
 
-    private function processGlobalStats($rows, $headerRowIndex)
+    private function processGlobalStats($rows, $globalStatsRowIndex)
     {
         // 搜尋標頭列上方的區域
-        for ($i = 0; $i < $headerRowIndex; $i++) {
-            $row = $rows[$i];
+        for ($i = 0; $i < $globalStatsRowIndex; $i++) {
+
+            $rowCollection = $rows->get($i);
+            // 【關鍵修正 2】安全檢查：若為空行或不存在，直接跳過
+            if (!$rowCollection || $rowCollection->isEmpty()) {
+                continue;
+            }
+            $row = $rowCollection->toArray();
+
         /**如果一行 Excel 數據在 Collection 中是這樣：
         *   $row = collect([
         *    '商品代號' => '3120123',
         *    '品牌' => '古道',
         *    '售價' => 25
         *   ]);
-        *   執行 $rowStr = implode(' ', $row->toArray()); 後：
-        *   $row->toArray() 變成： ['3120123', '古道', 25]
-        *   implode(' ', ...) 變成： '3120123 古道 25'
+        *
+        *   $row= $rows->get($i)->toArray() 變成： ['3120123', '古道', 25]
+        *   implode(' ', $row) 變成： '3120123 古道 25'
         *   $rowStr 的值就是： '3120123 古道 25'
         */
-            $rowStr = implode(' ', $row->toArray());
+            $rowStr = implode(' ', $row);
 
             $metricField = null;
             // 優先匹配長字串，避免 "天氣" 誤判 "去年同期天氣"

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasCompositePrimaryKey;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class MonthlyStoreStat extends Model
 {
     use HasFactory;
+    use HasCompositePrimaryKey;
 
     protected $table = 'monthly_store_stats';
 
