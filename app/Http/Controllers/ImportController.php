@@ -10,7 +10,7 @@ class ImportController extends Controller
 {
     protected $importService;
 
-    // 依賴注入 Service
+    // 建構子注入：Laravel 會自動幫你把 ExcelImportService new 出來塞進去
     public function __construct(ExcelImportService $importService)
     {
         $this->importService = $importService;
@@ -21,22 +21,26 @@ class ImportController extends Controller
      */
     public function uploadProductMaster(Request $request)
     {
+        // 1. 驗證
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls|max:10240', // 限制 10MB
+            'file' => 'required|file|mimes:xlsx,xls|max:10240', // 10MB
         ]);
 
         try {
+            // 2. 呼叫 Service
             $this->importService->importProducts($request->file('file'));
 
+            // 3. 回傳成功
             return response()->json([
                 'success' => true,
-                'message' => '商品資料匯入成功'
+                'message' => '商品主檔匯入成功'
             ]);
+
         } catch (\Exception $e) {
-            Log::error('Product Import Error: ' . $e->getMessage());
+            // 4. 回傳失敗
             return response()->json([
                 'success' => false,
-                'message' => '匯入失敗: ' . $e->getMessage()
+                'message' => '匯入失敗：' . $e->getMessage()
             ], 500);
         }
     }
@@ -47,7 +51,7 @@ class ImportController extends Controller
     public function uploadMonthlyStats(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls|max:20480',
+            'file' => 'required|file|mimes:xlsx,xls|max:20480', // 20MB
         ]);
 
         try {
@@ -55,13 +59,13 @@ class ImportController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => '統計資料匯入成功'
+                'message' => '月度統計匯入成功'
             ]);
+
         } catch (\Exception $e) {
-            Log::error('Stats Import Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => '匯入失敗: ' . $e->getMessage()
+                'message' => '匯入失敗：' . $e->getMessage()
             ], 500);
         }
     }
