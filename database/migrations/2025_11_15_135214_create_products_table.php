@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('factory_price', 9, 2)->nullable()->comment('廠價');
             $table->decimal('store_price', 9, 2)->nullable()->comment('店價');
             $table->decimal('selling_price', 9, 2)->nullable()->comment('售價');
-            $table->decimal('gross_margin_pct', 8, 2)->nullable()->comment('店舖毛利率');
+            $table->decimal('gross_margin_pct', 8, 5)->nullable()->comment('店舖毛利率'); //excel 12345.678%進資料庫後會存成123.45678
             $table->string('shelf_life', 50)->nullable()->comment('保存期限');
             $table->string('category_code_1', 10)->nullable()->index()->comment('品號');
             $table->string('category_code_2', 10)->nullable()->index()->comment('群號');

@@ -21,22 +21,22 @@ return new class extends Migration
             $table->integer('active_store_count')->nullable()->comment('導入店數');
             $table->integer('stock_in_store_count')->nullable()->comment('進貨店數');
             $table->integer('sales_store_count')->nullable()->comment('銷售店數');
-            $table->decimal('active_store_rate_pct', 8, 2)->nullable()->comment('導入店率%');
-            $table->decimal('stock_in_store_rate_pct', 8, 2)->nullable()->comment('進貨店率');
+            $table->decimal('active_store_rate_pct', 10, 5)->nullable()->comment('導入店率%');
+            $table->decimal('stock_in_store_rate_pct', 10, 5)->nullable()->comment('進貨店率');
 
             // 實銷金額
             $table->bigInteger('sales_amount')->nullable()->comment('實銷金額');
             $table->bigInteger('sales_amount_ly')->nullable()->comment('實銷金額_前年實績');
             $table->bigInteger('sales_amount_diff')->nullable()->comment('實銷金額_前年差');
-            $table->decimal('sales_amount_yoy_pct', 10, 2)->nullable()->comment('實銷金額_前年比%');
-            $table->decimal('sales_amount_mix_pct', 8, 2)->nullable()->comment('實銷金額_構成比%');
+            $table->decimal('sales_amount_yoy_pct', 10, 5)->nullable()->comment('實銷金額_前年比%');
+            $table->decimal('sales_amount_mix_pct', 10, 5)->nullable()->comment('實銷金額_構成比%');
 
             // 數量
             $table->bigInteger('stock_in_quantity')->nullable()->comment('進貨數量');
             $table->bigInteger('stock_in_quantity_ly')->nullable()->comment('進貨數量_前年實績');
             $table->bigInteger('sales_quantity')->nullable()->comment('銷售數量');
             $table->bigInteger('sales_quantity_diff')->nullable()->comment('銷售數量_前年差');
-            $table->decimal('sales_quantity_yoy_pct', 10, 2)->nullable()->comment('銷售數量_前年比%');
+            $table->decimal('sales_quantity_yoy_pct', 10, 5)->nullable()->comment('銷售數量_前年比%');
             $table->integer('waste_quantity')->nullable()->comment('廢棄數量');
             $table->integer('waste_quantity_ly')->nullable()->comment('廢棄數量_前年實績');
             $table->integer('return_quantity')->nullable()->comment('退貨數量');

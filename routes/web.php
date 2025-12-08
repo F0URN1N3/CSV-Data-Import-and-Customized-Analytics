@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportController;
 
+Route::view('/dashboard', 'dashboard')->name('dashboard');
+
 // 資料匯入群組
 Route::prefix('import')->group(function () {
     // 上傳商品主檔 (對應 products table)

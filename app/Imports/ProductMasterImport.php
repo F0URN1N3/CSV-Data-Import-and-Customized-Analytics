@@ -6,6 +6,7 @@ use App\Models\Product;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Illuminate\Support\Facades\Log;
 
 class ProductMasterImport implements ToModel, WithHeadingRow, WithMultipleSheets
 {
@@ -34,6 +35,14 @@ class ProductMasterImport implements ToModel, WithHeadingRow, WithMultipleSheets
      */
     public function model(array $row)
     {
+        // === 【除錯專用】 ===
+        // 只印出第一筆資料的 Key，確認程式抓到的標題對不對
+        // static $isFirstRow = true;
+        // if ($isFirstRow) {
+        //     Log::info('程式讀到的 Excel 標題 (Keys):', array_keys($row));
+        //     $isFirstRow = false;
+        // }
+
         // 確保必要欄位存在，若商品代號為空則跳過
         if (!isset($row['商品代號']) || empty($row['商品代號'])) {
             return null;

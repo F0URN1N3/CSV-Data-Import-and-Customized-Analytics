@@ -328,8 +328,22 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
     private function parseNumber($value)
     {
         if (is_null($value) || $value === '') return 0;
+
+        $valueStr = (string)$value;
+
+        // 檢查字串結尾是否為百分比符號，因為這是該函數讀取文字時會發生的情況
+        $isPercentageString = str_ends_with(trim($valueStr), '%');
+
         // 清洗數值：移除 % 和 ,
-        $cleanValue = str_replace(['%', ','], '', (string)$value);
-        return is_numeric($cleanValue) ? floatval($cleanValue) : 0;
+        $cleanValue = str_replace(['%', ','], '', (string)$valueStr);
+
+        $floatVal = is_numeric($cleanValue) ? floatval($cleanValue) : 0;
+
+        // 如果原始資料帶有百分比符號，則除以 100 轉換為小數
+        // 例如：'7.31%' -> '7.31' -> 7.31 -> 0.0731
+        if ($isPercentageString) {
+            return $floatVal / 100;
+        }
+        return $floatVal;
     }
 }
