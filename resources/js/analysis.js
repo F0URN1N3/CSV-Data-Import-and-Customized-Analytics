@@ -380,7 +380,42 @@ $('#select-brand-products').on('change', function() {
         } else {
             $display.text('--');
         }
+
+        // 填入靜態 Hidden Input
+        if (sY && sM && eY && eM) {
+            const startStr = `${sY}-${sM.toString().padStart(2, '0')}`;
+            const endStr = `${eY}-${eM.toString().padStart(2, '0')}`;
+            $('#input-start-date').val(startStr);
+            $('#input-end-date').val(endStr);
+        } else {
+            $('#input-start-date').val('');
+            $('#input-end-date').val('');
+        }
+
     }
+
+    // 單一按鈕送出事件
+    $('#btn-submit-report').click(function(e) {
+        e.preventDefault();
+
+        const start = $('#input-start-date').val();
+        const end = $('#input-end-date').val();
+
+        if (!start || !end) {
+            alert('請先選擇完整的時間區段！');
+            return;
+        }
+
+        // 商品檢查 (如果是品群報表則不用檢查)
+        const reportType = $('#current-report-type').val();
+        if (reportType !== 'category-psd' && productCart.length === 0) {
+            alert('請至少選擇一項商品！');
+            return;
+        }
+
+        // 直接送出表單 (action/method/target 已在 HTML 定義)
+        $('#analysis-form').submit();
+    });
 
 
 });

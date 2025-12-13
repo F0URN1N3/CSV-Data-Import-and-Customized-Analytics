@@ -3,11 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\MonthlyStoreStat;
+use App\Services\SalesAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AnalysisController extends Controller
 {
+    protected $analysisService;
+    // 注入 Service
+    public function __construct(SalesAnalysisService $analysisService)
+    {
+        $this->analysisService = $analysisService;
+    }
+
     /**
      * 顯示分析報表主頁面
      */
@@ -47,5 +55,46 @@ class AnalysisController extends Controller
         }
 
         return response()->json($result);
+    }
+
+    /**
+     *  接收表單，產出預覽報表 (HTML)
+     */
+    public function preview(Request $request)
+    {
+        // 1. 驗證資料
+        $validated = $request->validate([
+            'report_type' => 'required|string',
+            'start_date'  => 'required|date_format:Y-m', // 從 Hidden Input 來
+            'end_date'    => 'required|date_format:Y-m',
+            'product_codes' => 'nullable|array', // 部分報表需要
+        ]);
+
+        $type = $validated['report_type'];
+        $start = $validated['start_date'];
+        $end = $validated['end_date'];
+
+        $data = collect([]);
+        $viewName = 'analysis.report_preview'; // 統一用一個 View，內部再 switch
+
+        // 2. 根據報表類型呼叫 Service
+        switch ($type) {
+            case 'category-psd':
+                $data = $this->analysisService->analyzeCategoryPsd($start, $end);
+                break;
+
+            // 其他報表類型之後再補...
+            case 'product-sales-diff':
+            case 'product-quantity-diff':
+            case 'product-detail':
+                return "此報表功能開發中...";
+        }
+
+        // 3. 回傳預覽 View
+        return view($viewName, [
+            'reportType' => $type,
+            'data' => $data,
+            'dateRange' => "$start ~ $end"
+        ]);
     }
 }

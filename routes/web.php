@@ -26,6 +26,9 @@ Route::prefix('analysis')->name('analysis.')->group(function () {
 
     // 取得資料庫現有日期範圍
     Route::get('/dates', [AnalysisController::class, 'getAvailableDates'])->name('dates');
+
+    // 報表預覽 (POST)
+    Route::post('/preview', [AnalysisController::class, 'preview'])->name('preview');
 });
 
 // 搜尋 API 群組

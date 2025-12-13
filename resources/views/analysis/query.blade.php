@@ -63,9 +63,19 @@
 
             <div class="col-lg-7 scrollable-column border-end bg-white p-3">
 
-                <h5 class="fw-bold text-secondary mb-3"><i class="bi bi-sliders me-2"></i>篩選條件</h5>
+                <h5 class="fw-bold text-secondary mb-3">
+                    <i class="bi bi-sliders me-2"></i>
+                    @switch(request('report'))
+                        @case('category-psd') 成績單 - 品群實銷金額 (PSD) @break
+                        @case('product-sales-diff') 成績單 - 單品實銷金額差異 @break
+                        @case('product-quantity-diff') 成績單 - 單品銷售數量差異 @break
+                        @case('product-detail') 成績單 - 單品詳細資料 @break
+                        @default 篩選條件
+                    @endswitch
+                </h5>
 
-                <form id="analysis-form">
+                <form id="analysis-form" method="POST" action="/analysis/preview" target="_blank">
+                    @csrf
 
                     <div class="card mb-3 shadow-sm border-primary">
                         <div class="card-header bg-primary text-white py-1 px-3">
@@ -142,6 +152,10 @@
                         </div>
                     </div>
 
+                    <!-- 真正用於送出資料 -->
+                    <input type="hidden" name="report_type" value="{{ request('report') }}">
+                    <input type="hidden" name="start_date" id="input-start-date">
+                    <input type="hidden" name="end_date" id="input-end-date">
                     <div id="hidden-product-inputs"></div>
 
                 </form>
@@ -152,22 +166,13 @@
                 <div class="card shadow-sm mb-3 sticky-top" style="top: 0; z-index: 10;">
                     <div class="card-body p-2 d-flex justify-content-between align-items-center bg-white rounded">
                         <div>
-                            <small class="text-muted d-block">已選區間</small>
+                            <small class="text-muted d-block">時間區段</small>
                             <span id="display-date-range" class="fw-bold text-danger fs-5">--</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-bs-toggle="dropdown">
-                                    產出報表
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><button class="dropdown-item" data-action="report-1">成績單 - 品群實銷金額 (PSD)</button></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><button class="dropdown-item" data-action="report-2">成績單 - 單品實銷金額差異</button></li>
-                                    <li><button class="dropdown-item" data-action="report-3">成績單 - 單品銷售數量差異</button></li>
-                                    <li><button class="dropdown-item" data-action="report-4">成績單 - 單品詳細資料</button></li>
-                                </ul>
-                            </div>
+                            <button type="button" id="btn-submit-report" class="btn btn-danger fw-bold">
+                                <i class="bi me-1"></i> 製作報表
+                            </button>
                         </div>
                     </div>
                 </div>
