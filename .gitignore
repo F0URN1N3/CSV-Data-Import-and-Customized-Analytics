@@ -22,6 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*.bak
 
 /vendor/
 node_modules/
@@ -53,4 +54,5 @@ Homestead.json
 .env.production
 .phpactor.json
 auth.json
+
 

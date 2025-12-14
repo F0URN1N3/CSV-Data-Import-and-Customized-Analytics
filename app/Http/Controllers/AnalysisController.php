@@ -62,38 +62,32 @@ class AnalysisController extends Controller
      */
     public function preview(Request $request)
     {
-        // 1. 驗證資料
         $validated = $request->validate([
             'report_type' => 'required|string',
-            'start_date'  => 'required|date_format:Y-m', // 從 Hidden Input 來
+            'start_date'  => 'required|date_format:Y-m',
             'end_date'    => 'required|date_format:Y-m',
-            'product_codes' => 'nullable|array', // 部分報表需要
+            'product_codes' => 'nullable|array',
         ]);
 
         $type = $validated['report_type'];
         $start = $validated['start_date'];
         $end = $validated['end_date'];
 
-        $data = collect([]);
-        $viewName = 'analysis.report_preview'; // 統一用一個 View，內部再 switch
+        $data = []; // 初始化為陣列
+        $viewName = 'analysis.report_preview';
 
-        // 2. 根據報表類型呼叫 Service
         switch ($type) {
             case 'category-psd':
-                $data = $this->analysisService->analyzeCategoryPsd($start, $end);
+                // [修正] 改呼叫矩陣版 Service
+                $data = $this->analysisService->analyzeCategoryPsdMatrix($start, $end);
                 break;
 
-            // 其他報表類型之後再補...
-            case 'product-sales-diff':
-            case 'product-quantity-diff':
-            case 'product-detail':
-                return "此報表功能開發中...";
+            // ... 其他 case ...
         }
 
-        // 3. 回傳預覽 View
         return view($viewName, [
             'reportType' => $type,
-            'data' => $data,
+            'data' => $data, // 這裡傳入的是矩陣結構 Array
             'dateRange' => "$start ~ $end"
         ]);
     }

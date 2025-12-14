@@ -33,7 +33,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#"><i class="bi bi-cloud-upload me-1"></i> 資料匯入</a>
+                        <a class="nav-link active" href="{{ route('dashboard') }}"><i class="bi bi-cloud-upload me-1"></i> 資料匯入</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('analysis.index') }}">

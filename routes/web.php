@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AnalysisController;
+use App\Services\SalesAnalysisService;
+use App\Http\Controllers\DataMakingController;
 
 Route::view('/dashboard', 'dashboard')->name('dashboard');
 
@@ -47,3 +49,24 @@ Route::prefix('search')->name('search.')->group(function () {
     Route::get('/cats/2', [SearchController::class, 'getCategories2'])->name('cats2');
     Route::get('/products-by-cat', [SearchController::class, 'getProductsByCategory'])->name('products_by_cat');
 });
+
+Route::get('/debug-psd', function (SalesAnalysisService $service) {
+    // 設定你想測試的區間
+    $start = '2024-05';
+    $end   = '2024-06';
+
+    // 呼叫 Service
+    $data = $service->analyzeCategoryPsdMatrix($start, $end);
+
+    // 使用 Laravel 的 dd() 函數漂亮地印出陣列
+    dd([
+        '測試區間' => "$start ~ $end",
+        '回傳結果' => $data
+    ]);
+});
+
+// 1. 顯示表單 (GET 請求)
+Route::get('data-making', [DataMakingController::class, 'index'])->name('data-making');
+
+// 2. 處理表單提交並顯示結果 (POST 請求)
+Route::post('data-making', [DataMakingController::class, 'generateReport'])->name('data-making.generate');
