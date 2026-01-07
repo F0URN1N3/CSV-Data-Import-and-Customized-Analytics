@@ -19,8 +19,15 @@ $(document).ready(function() {
         // 也可以考慮在這邊自動加入那 19 個固定品群到 hidden input，或者後端直接處理
     }
 
+    // 單品詳細資料：切換為單一月份模式
+    const isSingleMonthMode = (reportType === 'product-detail');
+    if (isSingleMonthMode) {
+        $('#row-date-end').hide(); // 隱藏結束時間
+        $('#label-date-start').text('查詢月份：'); // 修改標籤文字
+    }
+
     // ==========================================
-    // 2. 購物車邏輯 (核心功能)
+    // 2. 購物車邏輯
     // ==========================================
 
     // 加入商品到購物車 (支援單一或批次)
@@ -335,21 +342,46 @@ $('#select-brand-products').on('change', function() {
     $('#date-start-month, #date-end-month').on('change', updateDateDisplay);
 
 
-    // [修正] 區間防呆檢查
+    // 區間防呆檢查
     function updateDateDisplay() {
+
+        //開始時間
         const sY = $('#date-start-year').val();
         const sY_txt = $('#date-start-year option:selected').text();
         const sM = $('#date-start-month').val();
 
-        const eY = $('#date-end-year').val();
-        const eY_txt = $('#date-end-year option:selected').text();
-        const eM = $('#date-end-month').val();
-
+        // 取得 ROC 年份顯示
         const formatY = (txt) => {
             if (!txt || txt === '年') return '';
             const match = txt.match(/\((\d+)\)/);
             return match ? match[1] + '年' : txt;
         };
+
+        // 單一月份模式邏輯(for單品詳細資料報表)
+        if (isSingleMonthMode) {
+            const $display = $('#display-date-range');
+            $display.removeClass('text-danger text-dark fw-bold').addClass('text-dark fw-bold');
+
+            if (sY && sM) {
+                // 顯示文字：113年5月
+                $display.text(`${formatY(sY_txt)}${sM}月`);
+
+                // 填入 Hidden Input：Start 和 End 都設為同一個月份
+                const dateStr = `${sY}-${sM.toString().padStart(2, '0')}`;
+                $('#input-start-date').val(dateStr);
+                $('#input-end-date').val(dateStr);
+            } else {
+                $display.text('--');
+                $('#input-start-date').val('');
+                $('#input-end-date').val('');
+            }
+            return; // 單月模式結束，不執行下方區間邏輯
+        }
+
+        //結束時間
+        const eY = $('#date-end-year').val();
+        const eY_txt = $('#date-end-year option:selected').text();
+        const eM = $('#date-end-month').val();
 
         // 1. 基本顯示字串
         let startStr = '??';
@@ -369,9 +401,18 @@ $('#select-brand-products').on('change', function() {
 
             if (endVal < startVal) {
                 // 錯誤狀況
-                $display.text('無效時間區間 (結束日期早於開始日期)').addClass('text-danger').removeClass('text-dark');
+                $display.text('無效區間 (結束早於開始)').addClass('text-danger');
+                $('#input-start-date').val('');
+                $('#input-end-date').val('');
                 return;
             }
+            const startInput = `${sY}-${sM.toString().padStart(2, '0')}`;
+            const endInput = `${eY}-${eM.toString().padStart(2, '0')}`;
+            $('#input-start-date').val(startInput);
+            $('#input-end-date').val(endInput);
+        }else {
+            $('#input-start-date').val('');
+            $('#input-end-date').val('');
         }
 
         // 正常顯示
@@ -401,13 +442,13 @@ $('#select-brand-products').on('change', function() {
         const start = $('#input-start-date').val();
         const end = $('#input-end-date').val();
 
+        // 檢查日期
         if (!start || !end) {
-            alert('請先選擇完整的時間區段！');
+            alert(isSingleMonthMode ? '請選擇查詢月份！' : '請先選擇完整的時間區段！');
             return;
         }
 
         // 商品檢查 (如果是品群報表則不用檢查)
-        const reportType = $('#current-report-type').val();
         if (reportType !== 'category-psd' && productCart.length === 0) {
             alert('請至少選擇一項商品！');
             return;

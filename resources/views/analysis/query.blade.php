@@ -40,23 +40,7 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" style="height: 60px;">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="bi bi-graph-up-arrow me-2"></i> Retail Analytics
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('dashboard') }}"><i class="bi bi-cloud-upload me-1"></i> 資料匯入</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active fw-bold" href="#"><i class="bi bi-bar-chart-line me-1"></i> 統計分析</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    @include('navigation.nav')
 
     <div class="container-fluid">
         <div class="row">
@@ -125,9 +109,9 @@
                         </div>
                         <div class="card-body p-2">
 
-                            <div class="row g-2 align-items-center mb-2">
+                            <div class="row g-2 align-items-center mb-2" id="row-date-start">
                                 <div class="col-3 text-end">
-                                    <label class="form-label small fw-bold mb-0">開始時間：</label>
+                                    <label class="form-label small fw-bold mb-0" id="label-date-start">開始時間：</label>
                                 </div>
                                 <div class="col-9">
                                     <div class="d-flex gap-1">
@@ -137,7 +121,7 @@
                                 </div>
                             </div>
 
-                            <div class="row g-2 align-items-center">
+                            <div class="row g-2 align-items-center" id="row-date-end">
                                 <div class="col-3 text-end">
                                     <label class="form-label small fw-bold mb-0">結束時間：</label>
                                 </div>

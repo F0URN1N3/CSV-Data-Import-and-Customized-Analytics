@@ -27,10 +27,11 @@ class AnalysisController extends Controller
     /**
      * 顯示查詢工作站
      */
-    public function query()
+    public function query(Request $request)
     {
-        // 回傳高密度查詢頁
-        return view('analysis.query');
+        $reportType = $request->query('report', 'category-psd');
+        return view('analysis.query', compact('reportType'));
+        //compact('reportType') 等同於 ['reportType' => $reportType]，將 $reportType 變數傳遞給視圖，讓視圖可以使用 $reportType 這個變數。
     }
 
     /**
@@ -45,16 +46,27 @@ class AnalysisController extends Controller
             ->distinct()
             ->orderBy('year', 'desc')
             ->orderBy('month', 'desc')
-            ->get();
+            ->get()
 
-        // 整理成前端好用的結構
+        // 整理成前端好用的結構(傳統foreach迴圈)
         // 格式: { "2025": [10, 9, ...], "2024": [12, 11, ...] }
-        $result = [];
-        foreach ($dates as $date) {
-            $result[$date->year][] = $date->month;
-        }
+        // $result = [];
+        // foreach ($dates as $date) {
+        //     $result[$date->year][] = $date->month;
+        // }
+        // return response()->json($result);
 
-        return response()->json($result);
+            ->groupBy('year') // 步驟一：將 Collection 以 'year' 欄位分組
+            // 結果：{ "2025": [item1, item2, ...], "2024": [...] }，其中 item 是原始的物件
+
+            ->map(function ($items) { // 步驟二：處理分組後的每個子 Collection
+            return $items->pluck('month')->values();
+            // $items->pluck('month')：從每個子 Collection 中取出所有的 'month' 值
+            // ->values()：重設陣列索引，確保最終輸出的是 [12, 11, ...] 而非 [0 => 12, 1 => 11, ...]
+            });
+
+    return response()->json($dates);
+
     }
 
     /**
@@ -72,23 +84,39 @@ class AnalysisController extends Controller
         $type = $validated['report_type'];
         $start = $validated['start_date'];
         $end = $validated['end_date'];
+        $products = $request->input('product_codes', []);
 
         $data = []; // 初始化為陣列
         $viewName = 'analysis.report_preview';
 
+        // 防呆
+        if (in_array($type, ['product-sales-diff', 'product-quantity-diff', 'product-detail']) && empty($products)) {
+            return back()->withErrors('請至少選擇一項商品');
+        }
+
         switch ($type) {
             case 'category-psd':
-                // [修正] 改呼叫矩陣版 Service
                 $data = $this->analysisService->analyzeCategoryPsdMatrix($start, $end);
                 break;
 
-            // ... 其他 case ...
+            case 'product-sales-diff':
+                $data = $this->analysisService->analyzeProductVariantMatrix($start, $end, $products, 'sales_amount');
+                break;
+
+            case 'product-quantity-diff':
+                $data = $this->analysisService->analyzeProductVariantMatrix($start, $end, $products, 'sales_quantity');
+                break;
+
+            case 'product-detail':
+                // 單品詳細：只取 start_date (因為單一月份)
+                $data = $this->analysisService->analyzeProductDetail($start, $products);
+                break;
         }
 
         return view($viewName, [
             'reportType' => $type,
             'data' => $data, // 這裡傳入的是矩陣結構 Array
-            'dateRange' => "$start ~ $end"
+            'dateRange' => ($type == 'product-detail') ? $start : "$start ~ $end"
         ]);
     }
 }

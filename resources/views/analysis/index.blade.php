@@ -24,26 +24,7 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="bi bi-graph-up-arrow me-2"></i>
-                Retail Data Analytics
-            </a>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('dashboard') }}"><i class="bi bi-cloud-upload me-1"></i> 資料匯入</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('analysis.index') }}">
-                            <i class="bi bi-bar-chart-line me-1"></i> 統計分析
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    @include('navigation.nav')
 
     <div class="container">
         <div class="text-center mb-5">
