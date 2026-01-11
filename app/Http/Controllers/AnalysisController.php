@@ -6,6 +6,8 @@ use App\Models\MonthlyStoreStat;
 use App\Services\SalesAnalysisService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Exports\SalesReportExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AnalysisController extends Controller
 {
@@ -118,5 +120,43 @@ class AnalysisController extends Controller
             'data' => $data, // 這裡傳入的是矩陣結構 Array
             'dateRange' => ($type == 'product-detail') ? $start : "$start ~ $end"
         ]);
+    }
+
+    public function download(Request $request)
+    {
+        $validated = $request->validate([
+            'report_type' => 'required|string',
+            'start_date'  => 'required|date_format:Y-m',
+            'end_date'    => 'required|date_format:Y-m',
+            'product_codes' => 'nullable|array',
+        ]);
+
+        $type = $validated['report_type'];
+        $start = $validated['start_date'];
+        $end = $validated['end_date'];
+        $products = $request->input('product_codes', []);
+
+        // 呼叫 Service 取得資料 (邏輯與 preview 完全相同)
+        switch ($type) {
+            case 'category-psd':
+                $data = $this->analysisService->analyzeCategoryPsdMatrix($start, $end);
+                break;
+            case 'product-sales-diff':
+                $data = $this->analysisService->analyzeProductVariantMatrix($start, $end, $products, 'sales_amount');
+                break;
+            case 'product-quantity-diff':
+                $data = $this->analysisService->analyzeProductVariantMatrix($start, $end, $products, 'sales_quantity');
+                break;
+            case 'product-detail':
+                $data = $this->analysisService->analyzeProductDetail($start, $products);
+                break;
+        }
+
+        $fileName = "Report_" . $type . "_" . now()->format('YmdHis') . ".xlsx";
+
+        return Excel::download(
+            new SalesReportExport($data, $type, "$start ~ $end"),
+            $fileName
+        );
     }
 }

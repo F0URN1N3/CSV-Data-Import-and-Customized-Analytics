@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <title>報表預覽 - {{ $reportType }}</title>
+    @if(!isset($isExcel))
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    @endif
     <style>
         body { padding: 20px; background: #eee; font-family: "Microsoft JhengHei", sans-serif; }
         .sheet { background: white; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); overflow-x: auto; }
@@ -22,7 +24,7 @@
         .header-detail { background-color: #e2e3e5; font-weight: bold; }
 
         .row-meta { background-color: #f8f9fa; color: #666; font-weight: bold; }
-        .row-2digit { background-color: #cfe2ff; font-weight: bold; }
+        .row-2digit {font-weight: bold; }
 
         .col-code { width: 60px; }
         .col-name { width: 150px; text-align: left; }
@@ -32,13 +34,30 @@
         @media print {
             .no-print { display: none; }
             body { padding: 0; background: white; }
-            .sheet { box-shadow: none; padding: 0; }
+            .sheet { box-shadow: none; padding: 0;}
         }
     </style>
 </head>
 <body>
 
+    @php
+        // 定義 Excel 專用的背景顏色
+        $colorHeaderYear = isset($isExcel) ? 'background-color: #d1e7dd;' : '';
+        $colorHeaderYearLY = isset($isExcel) ? 'background-color: #fff3cd;' : '';
+        $colorHeaderDiff = isset($isExcel) ? 'background-color: #f8d7da;' : '';
+        $colorProductInfo = isset($isExcel) ? 'background-color: #FFFF00;' : '';
+        $colorHeaderMonth = isset($isExcel) ? 'background-color: #f0f0f0;' : '';
+        $colorHeaderYear_total = isset($isExcel) ? 'background-color: #6cbc7c;' : '';
+        $colorHeaderYearLY_total = isset($isExcel) ? 'background-color: #f0e68c;' : '';
+        $colorHeaderDiff_total = isset($isExcel) ? 'background-color: #cd5c5c;' : '';
+
+    @endphp
+
     <div class="container-fluid">
+
+        {{-- 判斷：如果不是 Excel 匯出，才顯示標題與按鈕區塊 --}}
+        @if(!isset($isExcel))
+
         <div class="d-flex justify-content-between align-items-center mb-3 no-print">
             <h4 class="mb-0 fw-bold">
                 @switch($reportType)
@@ -52,10 +71,28 @@
                 </span>
             </h4>
             <div>
-                <button class="btn btn-success" onclick="window.print()"><i class="bi bi-printer"></i> 列印 / 存為 PDF</button>
-                <button class="btn btn-secondary ms-1" onclick="window.close()">關閉</button>
+                <form action="{{ route('analysis.download') }}" method="POST" style="display:inline;">
+                    @csrf
+                    {{-- 這裡需要把所有的查詢參數用 hidden input 傳過去 --}}
+                    <input type="hidden" name="report_type" value="{{ $reportType }}">
+                    <input type="hidden" name="start_date" value="{{ explode(' ~ ', $dateRange)[0] }}">
+                    <input type="hidden" name="end_date" value="{{ count(explode(' ~ ', $dateRange)) > 1 ? explode(' ~ ', $dateRange)[1] : explode(' ~ ', $dateRange)[0] }}">
+                    @if(isset($data['rows']))
+                        @foreach($data['rows'] as $code => $row)
+                            <input type="hidden" name="product_codes[]" value="{{ $code }}">
+                        @endforeach
+                    @elseif($reportType == 'product-detail')
+                        @foreach($data as $row)
+                            <input type="hidden" name="product_codes[]" value="{{ $row['product_code'] }}">
+                        @endforeach
+                    @endif
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-file-earmark-excel"></i> 下載 Excel</button>
+                </form>
+                <button class="btn btn-danger" onclick="window.close()">關閉</button>
             </div>
         </div>
+
+        @endif
 
         <div class="sheet">
             {{-- 檢查有無資料 --}}
@@ -84,14 +121,14 @@
                                     $yEndLY   = substr($pEndLY, 0, 4);
                                     $titleLY  = ($yStartLY == $yEndLY) ? "{$yStartLY} 年" : "{$yStartLY} - {$yEndLY} 年";
                                 @endphp
-                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year">{{ $title }} (本期)</th>
-                                <th colspan="{{ count($data['periods_ly']) + 1 }}" class="header-year-ly">{{ $titleLY }} (去年同期)</th>
+                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year" style="{{$colorHeaderYear}}">{{ $title }} (本期)</th>
+                                <th colspan="{{ count($data['periods_ly']) + 1 }}" class="header-year-ly" style="{{$colorHeaderYearLY}}">{{ $titleLY }} (去年同期)</th>
                             </tr>
                             <tr>
-                                @foreach($data['periods'] as $p) <th class="header-month">{{ substr($p, 5, 2) }}月</th> @endforeach
-                                <th class="header-month bg-primary text-white">合計</th>
-                                @foreach($data['periods_ly'] as $p) <th class="header-month">{{ substr($p, 5, 2) }}月</th> @endforeach
-                                <th class="header-month bg-secondary text-white">合計</th>
+                                @foreach($data['periods'] as $p) <th class="header-month" style="{{$colorHeaderMonth}}">{{ substr($p, 5, 2) }}月</th> @endforeach
+                                <th class="header-month">合計</th>
+                                @foreach($data['periods_ly'] as $p) <th class="header-month" style="{{$colorHeaderMonth}}">{{ substr($p, 5, 2) }}月</th> @endforeach
+                                <th class="header-month">合計</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -116,7 +153,7 @@
                                     @foreach($data['periods'] as $p)
                                         <td class="val-cell">{{ isset($row['data'][$p]) ? number_format($row['data'][$p], 2) : '' }}</td>
                                     @endforeach
-                                    <td class="val-cell fw-bold bg-primary-subtle">{{ number_format($row['total_current'], 2) }}</td>
+                                    <td class="val-cell fw-bold bg-success-subtle">{{ number_format($row['total_current'], 2) }}</td>
                                     @foreach($data['periods_ly'] as $p)
                                         <td class="val-cell text-muted">{{ isset($row['data_ly'][$p]) ? number_format($row['data_ly'][$p], 2) : '' }}</td>
                                     @endforeach
@@ -139,29 +176,29 @@
                                     $yStart = substr($pStart, 0, 4);
                                     $yLY    = $yStart - 1;
                                 @endphp
-                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year">{{ $yStart }} 年 (本期)</th>
-                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year-ly">{{ $yLY }} 年 (去年同期)</th>
-                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-diff">前期差異</th>
+                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year" style="{{$colorHeaderYear}}">{{ $yStart }} 年 (本期)</th>
+                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-year-ly" style="{{$colorHeaderYearLY}}">{{ $yLY }} 年 (去年同期)</th>
+                                <th colspan="{{ count($data['periods']) + 1 }}" class="header-diff" style="{{$colorHeaderDiff}}">前期差異</th>
                             </tr>
                             <tr>
                                 {{-- 商品基本資料 --}}
-                                <th class="th-product-info">代號</th>
-                                <th class="th-product-info">品牌</th>
-                                <th class="th-product-info">商品名稱</th>
-                                <th class="th-product-info">規格</th>
-                                <th class="th-product-info">廠價</th>
-                                <th class="th-product-info">店價</th>
-                                <th class="th-product-info">售價</th>
-                                <th class="th-product-info">毛利率%</th>
-                                <th class="th-product-info">保存期限</th>
-                                <th class="th-product-info">品號</th>
-                                <th class="th-product-info">群號</th>
-                                @foreach($data['periods'] as $p) <th class="header-month">{{ substr($p, 5, 2) }}月</th> @endforeach
-                                <th class="header-month bg-primary text-white">合計</th>
-                                @foreach($data['periods'] as $p) <th class="header-month">{{ substr($p, 5, 2) }}月</th> @endforeach
-                                <th class="header-month bg-secondary text-white">合計</th>
-                                @foreach($data['periods'] as $p) <th class="header-month">{{ substr($p, 5, 2) }}月</th> @endforeach
-                                <th class="header-month bg-danger text-white">合計</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">代號</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">品牌</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">商品名稱</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">規格</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">廠價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">店價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">售價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">毛利率%</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">保存期限</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">品號</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">群號</th>
+                                @foreach($data['periods'] as $p) <th class="header-month" style="{{$colorHeaderMonth}}">{{ substr($p, 5, 2) }}月</th> @endforeach
+                                <th class="header-month bg-success text-white" style="{{$colorHeaderYear_total}}">合計</th>
+                                @foreach($data['periods'] as $p) <th class="header-month" style="{{$colorHeaderMonth}}">{{ substr($p, 5, 2) }}月</th> @endforeach
+                                <th class="header-month bg-warning text-white" style="{{$colorHeaderYearLY_total}}">合計</th>
+                                @foreach($data['periods'] as $p) <th class="header-month" style="{{$colorHeaderMonth}}">{{ substr($p, 5, 2) }}月</th> @endforeach
+                                <th class="header-month bg-danger text-white" style="{{$colorHeaderDiff_total}}">合計</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -186,7 +223,7 @@
                                     @foreach($data['periods'] as $p)
                                         <td class="val-cell">{{ number_format($row['curr'][$p]) }}</td>
                                     @endforeach
-                                    <td class="val-cell fw-bold bg-primary-subtle">{{ number_format($row['total_curr']) }}</td>
+                                    <td class="val-cell fw-bold bg-success-subtle">{{ number_format($row['total_curr']) }}</td>
 
                                     {{-- 去年 --}}
                                     @foreach($data['periods'] as $p)
@@ -213,44 +250,44 @@
                         <thead>
                             <tr class="header-detail">
                                 {{-- 商品基本資料 --}}
-                                <th class="th-product-info">代號</th>
-                                <th class="th-product-info">品牌</th>
-                                <th class="th-product-info">商品名稱</th>
-                                <th class="th-product-info">規格</th>
-                                <th class="th-product-info">廠價</th>
-                                <th class="th-product-info">店價</th>
-                                <th class="th-product-info">售價</th>
-                                <th class="th-product-info">毛利率%</th>
-                                <th class="th-product-info">保存期限</th>
-                                <th class="th-product-info">品號</th>
-                                <th class="th-product-info">群號</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">代號</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">品牌</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">商品名稱</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">規格</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">廠價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">店價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">售價</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">毛利率%</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">保存期限</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">品號</th>
+                                <th class="th-product-info" style="{{$colorProductInfo}}">群號</th>
 
                                 {{-- 銷售指標 --}}
-                                <th>導入店數</th>
-                                <th>進貨店數</th>
-                                <th>銷售店數</th>
-                                <th>導入店率%</th>
-                                <th>進貨店率</th>
+                                <th style="{{$colorHeaderMonth}}">導入店數</th>
+                                <th style="{{$colorHeaderMonth}}">進貨店數</th>
+                                <th style="{{$colorHeaderMonth}}">銷售店數</th>
+                                <th style="{{$colorHeaderMonth}}">導入店率%</th>
+                                <th style="{{$colorHeaderMonth}}">進貨店率</th>
 
                                 {{-- 實銷金額 --}}
-                                <th>實銷金額</th>
-                                <th>實銷金額_前年實績</th>
-                                <th>實銷金額_前年差</th>
-                                <th>實銷金額_前年比%</th>
-                                <th>實銷金額_構成比%</th>
+                                <th style="{{$colorHeaderMonth}}">實銷金額</th>
+                                <th style="{{$colorHeaderMonth}}">實銷金額_前年實績</th>
+                                <th style="{{$colorHeaderMonth}}">實銷金額_前年差</th>
+                                <th style="{{$colorHeaderMonth}}">實銷金額_前年比%</th>
+                                <th style="{{$colorHeaderMonth}}">實銷金額_構成比%</th>
 
                                 {{-- 銷售數量 --}}
-                                <th>進貨數量</th>
-                                <th>進貨數量_前年實績</th>
-                                <th>銷售數量</th>
-                                <th>銷售數量_前年差</th>
-                                <th>銷售數量_前年比%</th>
-                                <th>廢棄數量</th>
-                                <th>廢棄數量_前年實績</th>
-                                <th>退貨數量</th>
-                                <th>退貨數量_前年實績</th>
-                                <th>轉貨數量</th>
-                                <th>轉貨數量_前年實績</th>
+                                <th style="{{$colorHeaderMonth}}">進貨數量</th>
+                                <th style="{{$colorHeaderMonth}}">進貨數量_前年實績</th>
+                                <th style="{{$colorHeaderMonth}}">銷售數量</th>
+                                <th style="{{$colorHeaderMonth}}">銷售數量_前年差</th>
+                                <th style="{{$colorHeaderMonth}}">銷售數量_前年比%</th>
+                                <th style="{{$colorHeaderMonth}}">廢棄數量</th>
+                                <th style="{{$colorHeaderMonth}}">廢棄數量_前年實績</th>
+                                <th style="{{$colorHeaderMonth}}">退貨數量</th>
+                                <th style="{{$colorHeaderMonth}}">退貨數量_前年實績</th>
+                                <th style="{{$colorHeaderMonth}}">轉貨數量</th>
+                                <th style="{{$colorHeaderMonth}}">轉貨數量_前年實績</th>
                             </tr>
                         </thead>
                         <tbody>

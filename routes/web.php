@@ -31,6 +31,8 @@ Route::prefix('analysis')->name('analysis.')->group(function () {
 
     // 報表預覽 (POST)
     Route::post('/preview', [AnalysisController::class, 'preview'])->name('preview');
+
+    Route::post('/download', [AnalysisController::class, 'download'])->name('download');
 });
 
 // 搜尋 API 群組
