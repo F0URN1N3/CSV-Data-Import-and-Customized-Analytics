@@ -15,7 +15,7 @@ class Product extends Model
      *
      * @var string
      */
-    protected $table = 'products';
+    // protected $table = 'products';
 
     /**
      * 指定主鍵 (Primary Key)。

@@ -39,6 +39,7 @@ class ProductMasterImport implements ToModel, WithHeadingRow, WithMultipleSheets
         // 只印出第一筆資料的 Key，確認程式抓到的標題對不對
         // static $isFirstRow = true;
         // if ($isFirstRow) {
+        //     Log::info('目前的 Row 全部的 Keys:', array_keys($row));
         //     Log::info('程式讀到的 Excel 標題 (Keys):', array_keys($row));
         //     $isFirstRow = false;
         // }
