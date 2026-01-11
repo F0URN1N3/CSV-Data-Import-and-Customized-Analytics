@@ -25,5 +25,9 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+
+        // 告訴 Laravel Excel：讀取標題列時，請完全保留原始文字 (None)，不要轉成 Slug。
+        // 這樣 "商品代號" 就會是 "商品代號"，不會變成 ""。
+        HeadingRowFormatter::default('none');
     }
 }
