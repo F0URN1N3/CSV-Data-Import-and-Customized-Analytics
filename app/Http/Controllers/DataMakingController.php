@@ -33,40 +33,68 @@ class DataMakingController extends Controller{
 
         $pivotedData = [
         'month'           => [], // 月份
+
+        'activeStoreCount'     => [],
+        'stockInStoreCount'     => [],
+        'salesStoreCount'     => [],
+        'activeStoreRatePct'     => [],
+        'stockInStoreRatePct'     => [],
+
         'salesAmount'     => [],
         'salesAmountLy'   => [],
         'salesAmountDiff' => [],
         'salesAmountYoy'  => [],
         'salesAmountMix'  => [],
 
-        'salesQuantity'   => [],
-        'salesQuantityLy' => [],
-        'salesQuantityDiff' => [],
-        'salesQuantityYoy'  => [],
-        'salesQuantityMix'  => [],
+        'stockInQuantity'   => [],
+        'stockInQuantityLy' => [],
+        'salesQuantity' => [],
+        'salesQuantityDiff'  => [],
+        'salesQuantityYoyPct'  => [],
+        'wasteQuantity'  => [],
+        'wasteQuantityLy'  => [],
+        'returnQuantity'  => [],
+        'returnQuantityLy'  => [],
+        'transferQuantity'  => [],
+        'transferQuantityLy'  => [],
         ];
 
         for ($month = 1; $month <= 12; $month++) {
             $tier = $Tiers[$month - 1];
 
+            // 呼叫 storeCount()
+            [ $ASC, $SISC, $SSC, $ASRP, $SISRP ] = $dataMaker->storeCountRng();
             // 呼叫 salesAmountRng()
             [ $sA, $sALy, $sADiff, $sAYoy, $sAMix ] = $dataMaker->salesAmountRng($tier);
             // 呼叫 salesQuantityRng()
-            [ $sQ, $sQLy, $sQDiff, $sQYoy, $sQMix ] = $dataMaker->salesQuantityRng($tier);
+            [ $SIQ, $SIQLy, $SQ, $SQD, $SQYP, $WQ, $WQLy, $RQ, $RQLy, $TQ, $TQLy] = $dataMaker->QuantityRng($tier);
 
             // 將每個指標的數據，依序放入對應的陣列中
             $pivotedData['month'][]           = $month;
+
+            $pivotedData['activeStoreCount'][]   = $ASC;
+            $pivotedData['stockInStoreCount'][]   = $SISC;
+            $pivotedData['salesStoreCount'][]   = $SSC;
+            $pivotedData['activeStoreRatePct'][]   = $ASRP;
+            $pivotedData['stockInStoreRatePct'][]   = $SISRP;
+
             $pivotedData['salesAmount'][]     = $sA;
             $pivotedData['salesAmountLy'][]   = $sALy;
             $pivotedData['salesAmountDiff'][] = $sADiff;
             $pivotedData['salesAmountYoy'][]  = $sAYoy;
             $pivotedData['salesAmountMix'][]  = $sAMix;
 
-            $pivotedData['salesQuantity'][]   = $sQ;
-            $pivotedData['salesQuantityLy'][] = $sQLy;
-            $pivotedData['salesQuantityDiff'][] = $sQDiff;
-            $pivotedData['salesQuantityYoy'][]  = $sQYoy;
-            $pivotedData['salesQuantityMix'][]  = $sQMix;
+            $pivotedData['stockInQuantity'][]   = $SIQ;
+            $pivotedData['stockInQuantityLy'][]   = $SIQLy;
+            $pivotedData['salesQuantity'][]   = $SQ;
+            $pivotedData['salesQuantityDiff'][]   = $SQD;
+            $pivotedData['salesQuantityYoyPct'][]   = $SQYP;
+            $pivotedData['wasteQuantity'][]   = $WQ;
+            $pivotedData['wasteQuantityLy'][]   = $WQLy;
+            $pivotedData['returnQuantity'][]   = $RQ;
+            $pivotedData['returnQuantityLy'][]   = $RQLy;
+            $pivotedData['transferQuantity'][]   = $TQ;
+            $pivotedData['transferQuantityLy'][]   = $TQLy;
         }
 
 

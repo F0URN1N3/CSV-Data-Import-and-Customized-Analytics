@@ -27,6 +27,7 @@
         <table border="1" cellpadding="10" cellspacing="0" style="width: 100%;">
             <thead>
                 <tr>
+                    {{-- <th></th> --}}
                     @foreach ($reportData['month'] as $month)
                         <th>{{ $month }} 月</th>
                     @endforeach
@@ -38,28 +39,45 @@
                         // 定義指標的顯示名稱和格式，用於美化輸出
                         $label = match ($key) {
                             'month' => '月份',
-                            'manual_input' => '手動輸入',
-                            'salesAmount' => '銷售金額 (本期)',
-                            'salesAmountLy' => '去年同期金額 (LY)',
-                            'salesAmountDiff' => '金額差異',
-                            'salesAmountYoy' => '金額年增長率 (%)',
-                            'salesAmountMix' => '金額 Mix',
-                            'salesQuantity' => '銷售數量 (本期)',
-                            'salesQuantityLy' => '去年同期數量 (LY)',
-                            'salesQuantityDiff' => '數量差異',
-                            'salesQuantityYoy' => '數量年增長率 (%)',
-                            'salesQuantityMix' => '數量 Mix',
+
+                            'activeStoreCount' => '導入店數',
+                            'stockInStoreCount' => '進貨店數',
+                            'salesStoreCount' => '銷售店數',
+                            'activeStoreRatePct' => '導入店率%',
+                            'stockInStoreRatePct' => '進貨店率',
+
+                            'salesAmount' => '實銷金額',
+                            'salesAmountLy' => '實銷金額_前年實績',
+                            'salesAmountDiff' => '實銷金額_前年差',
+                            'salesAmountYoy' => '實銷金額_前年比%',
+                            'salesAmountMix' => '實銷金額_構成比%',
+
+                            'stockInQuantity' => '進貨數量',
+                            'stockInQuantityLy' => '進貨數量_前年實績',
+                            'salesQuantity' => '銷售數量',
+                            'salesQuantityDiff' => '銷售數量_前年差',
+                            'salesQuantityYoyPct' => '銷售數量_前年比%',
+                            'wasteQuantity' => '廢棄數量',
+                            'wasteQuantityLy' => '廢棄數量_前年實績',
+                            'returnQuantity' => '退貨數量',
+                            'returnQuantityLy' => '退貨數量_前年實績',
+                            'transferQuantity' => '轉貨數量',
+                            'transferQuantityLy' => '轉貨數量_前年實績',
+
                             default => $key,
                         };
 
                         // 定義哪些欄位需要特殊格式 (例如百分比)
-                        $isPercentage = str_ends_with($key, 'Yoy');
+                        $isPercentage = str_ends_with($key, 'Yoy') || str_ends_with($key, 'Pct');
                         $isFloat = str_ends_with($key, 'Mix') || $isPercentage;
                     @endphp
 
                     {{-- 排除 'month' 鍵，因為它已經在表頭顯示 --}}
                     @if ($key !== 'month')
                     <tr>
+                        {{-- <td style="font-size: 10px;">
+                            {{ $label }}
+                        </td> --}}
                         {{-- 橫向顯示 12 個月的數據 --}}
                         @foreach ($values as $value)
                             <td style="text-align: right;">

@@ -3,6 +3,24 @@ namespace App\Services;
 
 class DataMaking
 {
+    public function storeCountRng()
+    {
+        $allStore= 122;
+
+        $activeStoreCount= round($allStore*mt_rand(60, 100)/100);
+        $stockInStoreCount= round($activeStoreCount*mt_rand(60, 100)/100);
+        $salesStoreCount= round($allStore*mt_rand(90, 100)/100);
+        $activeStoreRatePct= $activeStoreCount/$allStore;
+        $stockInStoreRatePct= $stockInStoreCount/$allStore;
+
+        return [
+            (int) $activeStoreCount,
+            (int) $stockInStoreCount,
+            (int) $salesStoreCount,
+            (float) $activeStoreRatePct,
+            (float) $stockInStoreRatePct,
+        ];
+    }
 
     public function salesAmountRng($Tier)
     {
@@ -51,7 +69,7 @@ class DataMaking
         }
 
         $salesAmountLy = $salesAmount - $salesAmountDiff;
-        $salesAmountYoy = ($salesAmount - $salesAmountLy) / $salesAmountLy;
+        $salesAmountYoy = $salesAmount / $salesAmountLy;
         $salesAmountMix = mt_rand(1111, 26999) / 10000;
 
         return [
@@ -63,62 +81,76 @@ class DataMaking
         ];
     }
 
-    public function salesQuantityRng($Tier)
+    public function QuantityRng($Tier)
     {
         $min= 1;
         $max= 1;
 
         switch($Tier){
             case 't1':
-                $min= 2000;
-                $max= 3000;
+                $min= 5000;
+                $max= 8000;
                 break;
 
             case 't2':
-                $min= 1700;
-                $max= 2700;
+                $min= 4000;
+                $max= 6000;
                 break;
 
             case 't3':
-                $min= 1300;
-                $max= 2300;
+                $min= 3000;
+                $max= 4500;
                 break;
 
             case 't4':
-                $min= 800;
-                $max= 1800;
+                $min= 2000;
+                $max= 3500;
                 break;
 
             case 't5':
-                $min= 300;
-                $max= 1200;
+                $min= 500;
+                $max= 3000;
                 break;
 
-            default: return [200, 100, 100, 0.9, 0.9];
         }
 
-        $salesQuantity= mt_rand($min, $max);
+        $stockInQuantity= mt_rand($min, $max); //進貨數量
 
         $diffRng= mt_rand(10, 160);
-
         $diffRate= $diffRng/ 1000;
 
         if($diffRng % 4 == 0 && $diffRng < 45){
-            $salesQuantityDiff = round($salesQuantity * $diffRate * -1) ;
+            $salesQuantityDiff = round($stockInQuantity * $diffRate * -1) ;
         }else{
-            $salesQuantityDiff = round($salesQuantity * $diffRate) ;
+            $salesQuantityDiff = round($stockInQuantity * $diffRate) ;
         }
 
-        $salesQuantityLy = $salesQuantity - $salesQuantityDiff;
-        $salesQuantityYoy = ($salesQuantity - $salesQuantityLy) / $salesQuantityLy;
-        $salesQuantityMix = mt_rand(11, 16999) / 10000;
+        $stockInQuantityLy = $stockInQuantity - $salesQuantityDiff; //進貨數量_前年實績
+        $salesQuantity= round($stockInQuantity*mt_rand(9200, 10000)/10000); //銷售數量
+        $salesQuantityDiff= round($salesQuantity*mt_rand(100, 1500)/10000); //銷售數量_前年差
+        $salesQuantityYoyPct= $salesQuantity/($salesQuantity-$salesQuantityDiff); //銷售數量_前年比%
+        $wasteQuantity= round(($stockInQuantity-$salesQuantity)*mt_rand(3000, 9000)/10000); //廢棄數量
+        $wasteQuantityLy= round($wasteQuantity*mt_rand(4000, 9000)/10000); //廢棄數量_前年實績
+        $returnQuantity= round(($stockInQuantity-$salesQuantity-$wasteQuantity)*mt_rand(3000, 9000)/10000); //退貨數量
+        $returnQuantityLy= round($returnQuantity*mt_rand(7000, 12000)/10000); //退貨數量_前年實績
+        $transferQuantity= round($wasteQuantity*mt_rand(10000, 20000)/10000); //轉貨數量
+        $transferQuantityLy= round($transferQuantity*mt_rand(7000, 12000)/10000); //轉貨數量_前年實績
+
+
 
         return [
+            (int) $stockInQuantity,
+            (int) $stockInQuantityLy,
             (int) $salesQuantity,
-            (int) $salesQuantityLy,
             (int) $salesQuantityDiff,
-            (float) $salesQuantityYoy,
-            (float) $salesQuantityMix,
+            (float) $salesQuantityYoyPct,
+            (int) $wasteQuantity,
+            (int) $wasteQuantityLy,
+            (int) $returnQuantity,
+            (int) $returnQuantityLy,
+            (int) $transferQuantity,
+            (int) $transferQuantityLy
+
         ];
     }
 
