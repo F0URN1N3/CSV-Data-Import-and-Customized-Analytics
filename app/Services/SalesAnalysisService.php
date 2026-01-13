@@ -306,10 +306,11 @@ class SalesAnalysisService
      */
     private function get3DigitData($startInt, $endInt)
     {
+        $tableName = DB::connection()->getTablePrefix() . (new \App\Models\Category3digitMonthlySummary())->getTable();
         return Category3digitMonthlySummary::query()
             ->leftJoin('categories', 'category_3digit_monthly_summaries.category_code', '=', 'categories.category_code')
-            ->whereRaw('(category_3digit_monthly_summaries.year * 100 + category_3digit_monthly_summaries.month) >= ?', [$startInt])
-            ->whereRaw('(category_3digit_monthly_summaries.year * 100 + category_3digit_monthly_summaries.month) <= ?', [$endInt])
+            ->whereRaw("($tableName.year * 100 + $tableName.month) >= ?", [$startInt])
+            ->whereRaw("($tableName.year * 100 + $tableName.month) <= ?", [$endInt])
             ->select(
                 'category_3digit_monthly_summaries.year',
                 'category_3digit_monthly_summaries.month',
@@ -325,10 +326,11 @@ class SalesAnalysisService
      */
     private function get2DigitData($startInt, $endInt)
     {
+        $tableName = DB::connection()->getTablePrefix() . (new \App\Models\Category2digitMonthlySummary())->getTable();
         return Category2digitMonthlySummary::query()
             ->leftJoin('categories', 'category_2digit_monthly_summaries.category_code', '=', 'categories.category_code')
-            ->whereRaw('(category_2digit_monthly_summaries.year * 100 + category_2digit_monthly_summaries.month) >= ?', [$startInt])
-            ->whereRaw('(category_2digit_monthly_summaries.year * 100 + category_2digit_monthly_summaries.month) <= ?', [$endInt])
+            ->whereRaw("($tableName.year * 100 + $tableName.month) >= ?", [$startInt])
+            ->whereRaw("($tableName.year * 100 + $tableName.month) <= ?", [$endInt])
             ->select(
                 'category_2digit_monthly_summaries.year',
                 'category_2digit_monthly_summaries.month',
