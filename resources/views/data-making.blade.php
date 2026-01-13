@@ -5,10 +5,6 @@
     <title>月度模擬銷售報告</title>
     </head>
 <body>
-    @php
-    $tableName = \DB::connection()->getTablePrefix() . (new \App\Models\Category3digitMonthlySummary())->getTable();
-    echo $tableName;
-    @endphp
 
     <h1>模擬銷售報告生成器</h1>
 

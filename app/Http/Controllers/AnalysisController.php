@@ -49,15 +49,6 @@ class AnalysisController extends Controller
             ->orderBy('year', 'desc')
             ->orderBy('month', 'desc')
             ->get()
-
-        // 整理成前端好用的結構(傳統foreach迴圈)
-        // 格式: { "2025": [10, 9, ...], "2024": [12, 11, ...] }
-        // $result = [];
-        // foreach ($dates as $date) {
-        //     $result[$date->year][] = $date->month;
-        // }
-        // return response()->json($result);
-
             ->groupBy('year') // 步驟一：將 Collection 以 'year' 欄位分組
             // 結果：{ "2025": [item1, item2, ...], "2024": [...] }，其中 item 是原始的物件
 

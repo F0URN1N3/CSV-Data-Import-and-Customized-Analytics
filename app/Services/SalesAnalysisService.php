@@ -94,7 +94,7 @@ class SalesAnalysisService
         // 4. 組裝資料列
         $rows = [];
 
-        $processRow = function($collection, $isLY) use (&$rows, $metadata) {
+        $processRow = function ($collection, $isLY) use (&$rows, $metadata) {
             $totalField = $isLY ? 'total_ly' : 'total_current'; // 總計欄位
 
             foreach ($collection as $item) {
@@ -212,8 +212,8 @@ class SalesAnalysisService
                 'store_price'   => $prod->store_price,
                 'selling_price' => $prod->selling_price,
                 'gross_margin_pct' => $prod->gross_margin_pct,
-                'category_code_1' =>$prod->category_code_1,
-                'category_code_2' =>$prod->category_code_2,
+                'category_code_1' => $prod->category_code_1,
+                'category_code_2' => $prod->category_code_2,
 
                 // --- 矩陣數值資料 ---
                 'curr'  => [],
@@ -265,7 +265,7 @@ class SalesAnalysisService
             ->where('product_monthly_summaries.month', $month)
             ->whereIn('product_monthly_summaries.product_code', $productCodes)
             ->select(
-            // 商品基本資料
+                // 商品基本資料
                 'products.*',
                 // 統計數據
                 'product_monthly_summaries.*'
@@ -276,16 +276,6 @@ class SalesAnalysisService
         // 這裡直接回傳 Collection 即可，因為 View loop 起來是一樣的
         return $items->toArray();
     }
-
-
-
-
-
-
-
-
-
-
 
 
     //------------------------------------ 輔助函式 ------------------------------------
@@ -306,7 +296,7 @@ class SalesAnalysisService
      */
     private function get3DigitData($startInt, $endInt)
     {
-        $tableName = DB::connection()->getTablePrefix() . (new \App\Models\Category3digitMonthlySummary())->getTable();
+        $tableName = DB::connection()->getTablePrefix() . (new Category3digitMonthlySummary())->getTable();
         return Category3digitMonthlySummary::query()
             ->leftJoin('categories', 'category_3digit_monthly_summaries.category_code', '=', 'categories.category_code')
             ->whereRaw("($tableName.year * 100 + $tableName.month) >= ?", [$startInt])
@@ -326,7 +316,7 @@ class SalesAnalysisService
      */
     private function get2DigitData($startInt, $endInt)
     {
-        $tableName = DB::connection()->getTablePrefix() . (new \App\Models\Category2digitMonthlySummary())->getTable();
+        $tableName = DB::connection()->getTablePrefix() . (new Category2digitMonthlySummary())->getTable();
         return Category2digitMonthlySummary::query()
             ->leftJoin('categories', 'category_2digit_monthly_summaries.category_code', '=', 'categories.category_code')
             ->whereRaw("($tableName.year * 100 + $tableName.month) >= ?", [$startInt])

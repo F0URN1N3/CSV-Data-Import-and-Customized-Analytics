@@ -54,7 +54,7 @@
             </div>
 
             <div class="col-md-6 col-lg-3">
-                <a href="{{ route('analysis.query', ['report' => 'product-qty-diff']) }}" class="card report-card text-center p-4 border-success">
+                <a href="{{ route('analysis.query', ['report' => 'product-quantity-diff']) }}" class="card report-card text-center p-4 border-success">
                     <div class="card-body">
                         <div class="icon-box text-success"><i class="bi bi-box-seam"></i></div>
                         <h5 class="card-title fw-bold">單品銷售數量差異</h5>
