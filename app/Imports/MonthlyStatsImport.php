@@ -108,7 +108,7 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
         for ($i = $headerRowIndex + 1; $i < $rows->count(); $i++) {
 
             $rowCollection = $rows->get($i);
-            // 【關鍵修正 1】安全檢查：若為空行或不存在，直接跳過
+            // 安全檢查：若為空行或不存在，直接跳過
             if (!$rowCollection || $rowCollection->isEmpty()) {
                 continue;
             }
@@ -252,7 +252,7 @@ class MonthlyStatsImport implements ToCollection, WithMultipleSheets
         for ($i = 0; $i < $globalStatsRowIndex; $i++) {
 
             $rowCollection = $rows->get($i);
-            // 【關鍵修正 2】安全檢查：若為空行或不存在，直接跳過
+            // 安全檢查：若為空行或不存在，直接跳過
             if (!$rowCollection || $rowCollection->isEmpty()) {
                 continue;
             }

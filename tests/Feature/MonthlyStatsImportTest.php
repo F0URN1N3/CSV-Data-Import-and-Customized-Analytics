@@ -33,7 +33,7 @@ class MonthlyStatsImportTest extends TestCase
         $allRows = array_merge([$headerRow], $globalStatsRows, $dataRows);
 
         // 3.真實的 Excel 套件讀進來時，每一列($row)其實是一個 Collection 物件
-        // 所以我們這裡也要把每一列 array 轉成 collect()
+        // 所以這裡也要把每一列 array 轉成 collect()
         return collect($allRows)->map(function ($row) {
             return collect($row);
         });
@@ -101,7 +101,7 @@ class MonthlyStatsImportTest extends TestCase
 
     /**
      * 測試 3: 【三碼品群】應該 "忽略" 帶有 "_合計" 的指標 (這是簡易版資料)
-     * 這就是我們討論很久的過濾邏輯！
+     * 這就討論很久的過濾邏輯！
      */
     public function test_ignores_3digit_category_when_column_is_total()
     {

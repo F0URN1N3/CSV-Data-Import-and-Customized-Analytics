@@ -22,7 +22,7 @@ class SalesReportExport implements FromView, ShouldAutoSize, WithTitle
 
     public function view(): View
     {
-        // 直接使用 preview 的 blade，但我們可以在 blade 裡針對 excel 做一點小調整
+        // 直接使用 preview 的 blade，但可以在 blade 裡針對 excel 做一點小調整
         return view('analysis.report_preview', [
             'data' => $this->data,
             'reportType' => $this->reportType,

@@ -67,8 +67,9 @@ Route::get('/debug-psd', function (SalesAnalysisService $service) {
     ]);
 });
 
+
+//製作demo用的資料
 // 1. 顯示表單 (GET 請求)
 Route::get('data-making', [DataMakingController::class, 'index'])->name('data-making');
-
 // 2. 處理表單提交並顯示結果 (POST 請求)
 Route::post('data-making', [DataMakingController::class, 'generateReport'])->name('data-making.generate');

@@ -210,7 +210,7 @@ $(document).ready(function() {
         addToCart({ id: data.id, text: data.text });
 
         // 技巧：選完後馬上把這個選項「取消選取」(UI上)，讓使用者感覺像是一個按鈕
-        // 但 Select2 設為 multiple 時比較難做「不留痕跡」，我們這裡僅加入購物車
+        // 但 Select2 設為 multiple 時比較難做「不留痕跡」，這裡僅加入購物車
         // 使用者會看到選單上變灰或打勾
     });
 

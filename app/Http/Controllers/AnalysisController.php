@@ -42,7 +42,7 @@ class AnalysisController extends Controller
      */
     public function getAvailableDates()
     {
-        // 我們假設 monthly_store_stats (全店統計) 是最完整的時間軸
+        // 假設 monthly_store_stats (全店統計) 是最完整的時間軸
         // 撈出所有不重複的 年/月 組合，並按時間倒序排列
         $dates = MonthlyStoreStat::select('year', 'month')
             ->distinct()

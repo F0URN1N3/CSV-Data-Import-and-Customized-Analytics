@@ -20,7 +20,7 @@ class MonthlyStoreStat extends Model
 
     /**
      * 告知 Eloquent 此資料表的主鍵是由多個欄位組成的 (複合主鍵)。
-     * 我們會在之後的匯入邏輯中處理 'updateOrCreate'。
+     * 在之後的匯入邏輯中處理 'updateOrCreate'。
      *
      * @var array
      */

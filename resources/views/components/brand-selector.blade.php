@@ -11,7 +11,7 @@
 
 <script type="module">
     // 使用 type="module" 確保在 jQuery 載入後執行，或是直接寫在 app.js
-    // 這裡為了方便封裝，我們先寫簡單的 script
+    // 這裡為了方便封裝，先寫簡單的 script
     document.addEventListener('DOMContentLoaded', function () {
         $('#{{ $id }}').select2({
             ajax: {

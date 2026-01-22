@@ -43,7 +43,7 @@ class SalesAnalysisService
         $startLY = $start->copy()->subYear();
         $endLY   = $end->copy()->subYear();
 
-        // [關鍵修正 1] 轉換為整數格式 YYYYMM (例如 202405)，解決跨年份查詢問題
+        // 轉換為整數格式 YYYYMM (例如 202405)，解決跨年份查詢問題
         $startInt = $start->year * 100 + $start->month;
         $endInt   = $end->year * 100 + $end->month;
 
@@ -61,7 +61,7 @@ class SalesAnalysisService
         }
 
         // 2. 準備全店統計資料 (使用整數區間撈取)
-        // 為了保險，我們一次撈取「去年開始 ~ 今年結束」的大範圍，避免漏掉
+        // 為了保險，一次撈取「去年開始 ~ 今年結束」的大範圍，避免漏掉
         $storeStats = $this->getStoreStats($startLYInt, $endInt);
 
         $metadata = [];
@@ -75,7 +75,7 @@ class SalesAnalysisService
             // 確保 Key 格式為 YYYY-MM
             $key = sprintf('%04d-%02d', $y, $m);
 
-            // [關鍵修正 2] 改讀取 existing_store_count (既存店數)，原本寫 active_store_count 是錯的
+            // 改讀取 existing_store_count (既存店數)，原本寫 active_store_count 是錯的
             $storeCount = $storeStats[$key]->existing_store_count ?? 0;
 
             $metadata[$p] = [
@@ -250,7 +250,7 @@ class SalesAnalysisService
 
     /**
      * 4. 成績單 - 單品詳細資料 (單一月份)
-     * [修正] 不做任何運算，直接撈取該月份的 ProductMonthlySummary 所有欄位
+     *
      */
     public function analyzeProductDetail(string $monthStr, array $productCodes): array
     {
@@ -292,7 +292,7 @@ class SalesAnalysisService
     }
 
     /**
-     * [修正] 使用整數比對 + Left Join
+     * 使用整數比對 + Left Join
      */
     private function get3DigitData($startInt, $endInt)
     {
@@ -312,7 +312,7 @@ class SalesAnalysisService
     }
 
     /**
-     * [修正] 使用整數比對 + Left Join
+     * 使用整數比對 + Left Join
      */
     private function get2DigitData($startInt, $endInt)
     {
