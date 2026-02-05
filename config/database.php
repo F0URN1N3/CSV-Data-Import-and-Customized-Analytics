@@ -92,10 +92,13 @@ return [
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => 'csv_',
+            'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => 'require', // 雲端資料庫必備
+            'options' => [
+                PDO::ATTR_EMULATE_PREPARES => true, // 解決 Serverless/Pooler 交易報錯
+            ],
         ],
 
         'sqlsrv' => [
